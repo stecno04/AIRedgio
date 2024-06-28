@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-time Data Page</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        document.addEventListener('DOMContentLoaded', (event) => {
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            socket.on('connect', function() {
+                console.log('Connected to server');
+            });
+            console.log('Connected to server');
+            socket.on('update_data', function(data) {
+                document.getElementById('header').innerHTML = data.header;
+                let items = data.data_items.map(item => `<li>${item.name}: ${item.value}</li>`).join('');
+                document.getElementById('data_list').innerHTML = items;
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1 id="header">Waiting for data...</h1>
+    <ul id="data_list"></ul>
+</body>
+</html>

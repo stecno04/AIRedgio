@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: row;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .main-content {
+            flex: 4; /* Increase this value to make the main content area bigger */
+            padding: 20px;
+        }
+        .sidebar {
+            flex: 1; /* Decrease this value to make the sidebar smaller */
+            background-color: #f7f7f7;
+            padding: 20px;
+            border-left: 1px solid #ddd;
+        }
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        img {
+            width: 200px;
+            height: auto;
+            margin: 0 10px;
+        }
+        #data {
+            background-color: #f4f4f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+        .data-section {
+            margin-bottom: 10px;
+        }
+        .data-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        .sensor-box, .garmin-box {
+            background-color: #e6e6e6;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .sensor-box h3, .garmin-box h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .sensor-data, .garmin-data {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .data-point {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .green-background {
+            background-color: #d4edda; /* Light green background */
+            color: #155724; /* Dark green text */
+            border-color: #c3e6cb; /* Light green border */
+        }
+        .red-background {
+            background-color: #f8d7da; /* Light red background */
+            color: #721c24; /* Dark red text */
+            border-color: #f5c6cb; /* Light red border */
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/');
+            
+            function createDataHTML(key, value) {
+                if (typeof value === 'object' && value !== null) {
+                    return `<div class="data-item"><strong>${key}</strong>:<pre>${JSON.stringify(value, null, 2)}</pre></div>`;
+                } else {
+                    return `<div class="data-item"><strong>${key}</strong>: ${value}</div>`;
+                }
+            }
+
+            socket.on('update_data', function(data) {
+                var dataContainer = document.getElementById('data');
+                dataContainer.innerHTML = '';
+                for (var key in data.data_items) {
+                    var dataHTML = createDataHTML(key, data.data_items[key]);
+                    dataContainer.innerHTML += dataHTML;
+                }
+            });
+
+            socket.on('misure_corpo', function(data) {
+                var misureCorpoContainer = document.getElementById('misure-corpo');
+                misureCorpoContainer.innerHTML = '';
+                for (var key in data) {
+                    var dataHTML = createDataHTML(key, data[key]);
+                    misureCorpoContainer.innerHTML += dataHTML;
+                }
+            });
+
+            socket.on('scarto', function(data) {
+                var scartoContainer = document.getElementById('scarto');
+                
+                scartoContainer.innerHTML = '';
+                for (var key in data) {
+                    var className = (data[key] === "good") ? "data-item green-background" : "data-item red-background";
+                    var dataHTML = `<div class="${className}"><strong>${key}</strong>: ${data[key]}</div>`;
+                    scartoContainer.innerHTML += dataHTML;
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="main-content">
+        <h1>{{ header }}</h1>
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='AI-REDIGIO5.0.png') }}" alt="First Image Description">
+            <img src="{{ url_for('static', filename='logo_MADE.png') }}" alt="Second Image Description">
+        </div>
+        <div id="data" class="data-section"></div>
+    </div>
+    <div class="sidebar">
+        <div id="misure-corpo" class="data-section sensor-box">
+            <h3>Misure Corpo</h3>
+        </div>
+        <div id="scarto" class="data-section garmin-box">
+            <h3>Scarto</h3>
+        </div>
+    </div>
+</body>
+</html>
