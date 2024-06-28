@@ -1,0 +1,17 @@
+.venv/
+errori/
+
+Garmin/MyApplication2
+Garmin/Garmin Developer Program_Start_Guide.pdf
+
+NoiseMeter/app_infos
+NoiseMeter/errori
+NoiseMeter/screenshot.png
+
+termocamera/bianco.jpg
+termocamera/verde.jpg
+termocamera/frame.npy
+
+/flask_frontend/
+/templates/
+/app.py
